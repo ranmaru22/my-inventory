@@ -3,5 +3,20 @@ html
   head
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
+
   body
-    block content
+    .container.flex.mx-auto
+      block sidebar
+        .px-2.w-48
+          ul
+            li 
+              a(href='/') Home
+            li 
+              a(href='/categories/') All categories
+            li 
+              a(href='/categories/add') Add new categorie
+            li 
+              a(href='/items/add') Add new item
+
+      .px-2.flex-auto
+        block content
