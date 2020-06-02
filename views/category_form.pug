@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  h1= title
+
+  form.py-4(action="", method="POST")
+    .flex.justify-center.py-2
+      input#name.bg-gray-200.appearance-none.border-2.border-gray-200.rounded.py-2.px-4.leading-tight(type="text", name="name", placeholder="Category", class="focus:outline-none focus:bg-white focus:border-blue-500" value=(category ? category.name : ""))
+    .flex.justify-center.py-2
+      textarea#description.bg-gray-200.appearance-none.border-2.border-gray-200.rounded.py-2.px-4.leading-tight(cols="30", rows="10", name="description", placeholder="Description", class="focus:outline-none focus:bg-white focus:border-blue-500" value=(category ? category.description : ""))
+    .flex.justify-center.py-2
+      button.bg-blue-500.text-white.font-bold.py-2.px-4.rounded(type="submit", class="hover:bg-blue-700") Save
+
+  if errors
+    ul
+      for error in errors
+        li!= error.msg
