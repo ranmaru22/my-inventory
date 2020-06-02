@@ -7,16 +7,19 @@ html
   body
     .container.flex.mx-auto
       block sidebar
-        .px-2.w-48
+        .p-2.w-48.bg-blue-100
           ul
             li 
               a(href='/') Home
+            hr.border-blue-400.my-1
             li 
               a(href='/categories/') All categories
+            block sidebar-extension
+            hr.border-blue-400.my-1
             li 
               a(href='/categories/add') Add new category
             li 
               a(href='/items/add') Add new item
 
-      .px-2.flex-auto
+      .px-4.flex-auto
         block content
