@@ -3,9 +3,3 @@ extends layout
 block content
   h1.text-3xl= title
   p.my-2 Welcome to #{title}. We have all things keyboard in store for you enthusiasts.
-
-block sidebar-extension
-  unless error
-    for category, index in categories
-      li
-        a(href=(category.url)) #{category.name}
