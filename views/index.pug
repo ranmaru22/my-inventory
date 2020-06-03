@@ -5,7 +5,7 @@ block content
   p.my-2 Welcome to #{title}. We have all things keyboard in store for you enthusiasts.
 
 block sidebar-extension
-  if category
+  if categories
     for category in categories
       li
         a(href=(category.url)) #{category.name}

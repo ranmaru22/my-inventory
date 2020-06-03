@@ -31,7 +31,7 @@ block content
         li!= error.msg
 
 block sidebar-extension
-  if category
+  if categories
     for category in categories
       li
         a(href=(category.url)) #{category.name}
