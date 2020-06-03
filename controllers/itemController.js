@@ -1,6 +1,12 @@
 const Item = require("../models/item");
 const Category = require("../models/category");
 const validator = require("express-validator");
+const multer = require("multer");
+const fs = require("fs");
+
+const filePath = "public/images/";
+const upload = multer({ dest: filePath }).single("image");
+
 
 exports.itemList = (req, res, next) => {
     res.redirect("/categories");
@@ -35,6 +41,8 @@ exports.itemAddPost = [
     validator.check("stock", "Stock must be an integer.").trim().isInt(),
     validator.body("*").escape(),
 
+    upload,
+
     async (req, res, next) => {
         const errors = validator.validationResult(req);
         const categories = await Category.find().exec();
@@ -44,7 +52,8 @@ exports.itemAddPost = [
             description: req.body.description,
             manufacturer: req.body.manufacturer,
             price: req.body.price,
-            stock: req.body.stock
+            stock: req.body.stock,
+            image: req.file?.filename
         });
         if (!errors.isEmpty) {
             res.render("item_form", { title: "Add Item", item: item, errors: errors.array() });
@@ -76,7 +85,15 @@ exports.itemDeleteGet = async (req, res, next) => {
 
 exports.itemDeletePost = async (req, res, next) => {
     try {
-        await Item.findByIdAndRemove(req.body.itemId);
+        const item = await Item.findById(req.body.itemId);
+        if (item.image) {
+            fs.unlink(filePath + item.image, err => {
+                if (err) {
+                    return next(err);
+                }
+            });
+        }
+        await item.remove();
         res.redirect("/");
     } catch (err) {
         return next(err);
@@ -103,8 +120,18 @@ exports.itemUpdatePost = [
     validator.check("stock", "Stock must be an integer.").trim().isInt(),
     validator.body("*").escape(),
 
+    upload,
+
     async (req, res, next) => {
         const errors = validator.validationResult(req);
+        const currentItem = await Item.findById(req.params.id);
+        if (req.file && req.file.filename !== currentItem.image) {
+            fs.unlink(filePath + currentItem.image, err => {
+                if (err) {
+                    return next(err);
+                }
+            });
+        }
         const item = new Item({
             category: req.body.category,
             name: req.body.name,
@@ -112,7 +139,8 @@ exports.itemUpdatePost = [
             manufacturer: req.body.manufacturer,
             price: req.body.price,
             stock: req.body.stock,
-            _id: req.params.id
+            _id: req.params.id,
+            image: req.file?.filename || currentItem.image
         });
         if (!errors.isEmpty) {
             res.render("item_form", { title: "Add Item", item: item, errors: errors.array() });
