@@ -12,6 +12,12 @@ block content
     p In stock: #{item.stock}
     p Price: $#{item.price}
 
+  hr.my-5
+  p
+    a(href=item.url+"/update") Edit #{item.name}
+  p
+    a(href=item.url+"/delete") Delete #{item.name}
+
 block sidebar-extension
   if categories
     for category in categories
