@@ -64,16 +64,35 @@ exports.itemAddPost = [
     }
 ];
 
-exports.itemDeleteGet = (req, res, next) => {
-    res.send("NOT IMPLEMENTED: Delete Item GET");
+exports.itemDeleteGet = async (req, res, next) => {
+    try {
+        const categories = await Category.find().exec();
+        const item = await Item.findById(req.params.id);
+        res.render("item_delete", { title: `Delete Item: ${item.name}`, item: item, categories: categories });
+    } catch (err) {
+        return next(err);
+    }
 };
 
-exports.itemDeletePost = (req, res, next) => {
-    res.send("NOT IMPLEMENTED: Delete Item POST");
+exports.itemDeletePost = async (req, res, next) => {
+    try {
+        await Item.findByIdAndRemove(req.body.itemId);
+        res.redirect("/");
+    } catch (err) {
+        return next(err);
+    }
 };
 
-exports.itemUpdateGet = (req, res, next) => {
-    res.send("NOT IMPLEMENTED: Update Item GET");
+exports.itemUpdateGet = async (req, res, next) => {
+    try {
+        const categories = await Category.find().exec();
+        const item = await Item.findById(req.params.id)
+            .populate("category")
+            .exec();
+        res.render("item_form", { title: `Edit Item: ${item.name}`, categories: categories, item: item });
+    } catch (err) {
+        return next(err);
+    }
 };
 
 exports.itemUpdatePost = (req, res, next) => {
