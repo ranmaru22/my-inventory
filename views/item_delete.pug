@@ -7,8 +7,11 @@ block content
   form(action="", method="post")
     .form-group
       input(type="hidden", name="itemId", required, value=item._id)
-      button.bg-red-500.text-white.font-bold.py-2.px-4.rounded(type="submit", class="hover:bg-blue-700") Delete
+      input#password.bg-gray-200.appearance-none.border-2.border-gray-200.rounded.py-2.px-4.leading-tight(type="password", name="password", placeholder="Enter password to confirm", class="focus:outline-none focus:bg-white focus:border-blue-500")
+      button.mx-2.bg-red-500.text-white.font-bold.py-2.px-4.rounded(type="submit", class="hover:bg-blue-700") Delete
 
+  if error
+    p.font-bold.text-red-600 Wrong password! Try again.
 
 block sidebar-extension
   if categories
