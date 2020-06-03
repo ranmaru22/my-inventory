@@ -18,7 +18,7 @@ ItemSchema.virtual("url")
 
 ItemSchema.virtual("imageUrl")
     .get(function () {
-        return this.image ? "/images/" + this.image : "";
+        return this.image ? "/uploads/" + this.image : "";
     });
 
 module.exports = mongoose.model("Item", ItemSchema);

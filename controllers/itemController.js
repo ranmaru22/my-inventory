@@ -4,7 +4,7 @@ const validator = require("express-validator");
 const multer = require("multer");
 const fs = require("fs");
 
-const filePath = "public/images/";
+const filePath = "public/uploads/";
 const upload = multer({ dest: filePath }).single("image");
 
 
