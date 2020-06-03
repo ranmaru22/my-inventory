@@ -11,7 +11,7 @@ block content
         - categories.sort((a, b) => a.name.toUpperCase() < b.name.toUpperCase() ? -1 : a.name.toUpperCase() > b.name.toUpperCase() ? 1 : 0);
         for category in categories
           if item
-            option(value=category._id, selected=(category._id.toString() === item.category ? "selected" : false)) #{category.name}
+            option(value=category._id, selected=(category.name === item.category.name ? "selected" : false)) #{category.name}
           else
             option(value=category._id) #{category.name}
     .flex.justify-center.py-2
