@@ -3,7 +3,7 @@ const Category = require("../models/category");
 const validator = require("express-validator");
 
 exports.itemList = (req, res, next) => {
-    res.send("NOT IMPLEMENTED: Item list");
+    res.redirect("/categories");
 };
 
 exports.itemDetail = async (req, res, next) => {
