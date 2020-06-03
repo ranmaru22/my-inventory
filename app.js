@@ -13,7 +13,7 @@ const app = express();
 // database setup
 const devDbUri = "mongodb://127.0.0.1/inventorylocal";
 const mongoDb = process.env.MONGODB_URI || devDbUri;
-mongoose.connect(mongoDb, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(mongoDb, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: true });
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection errror: "));
 
