@@ -75,7 +75,6 @@ exports.catDeletePost = async (req, res, next) => {
         const items = await Item.find({ category: req.body.categoryId });
         if (items.length > 0) {
             res.render("category_delete", { title: `Delete Category: ${category.name}`, items: items, category: category });
-            return void 0;
         } else {
             await Category.findByIdAndRemove(req.body.categoryId);
             res.redirect("/categories");
