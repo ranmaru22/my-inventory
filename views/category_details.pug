@@ -11,6 +11,10 @@ block content
       else
         li No items in this category.
 
+  hr.my-5
+  p
+    a(href=thisCategory.url+"/delete") Delete #{thisCategory.name}
+
 
 block sidebar-extension
   if categories
