@@ -9,8 +9,13 @@ exports.catDetail = (req, res, next) => {
     res.send("NOT IMPLEMENTED: Category detail page");
 };
 
-exports.catAddGet = (req, res, next) => {
-    res.render("category_form", { title: "Add Category" });
+exports.catAddGet = async (req, res, next) => {
+    try {
+        const categories = await Category.find().exec();
+        res.render("category_form", { title: "Add Category", categories: categories });
+    } catch (err) {
+        return next(err);
+    }
 };
 
 exports.catAddPost = [
