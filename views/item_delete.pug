@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  h1= title
+
+  p.my-2 Do you really want to delete this item?
+  form(action="", method="post")
+    .form-group
+      input(type="hidden", name="itemId", required, value=item._id)
+      button.bg-red-500.text-white.font-bold.py-2.px-4.rounded(type="submit", class="hover:bg-blue-700") Delete
+
+
+block sidebar-extension
+  if categories
+    for category in categories
+      li
+        a(href=(category.url)) #{category.name}
