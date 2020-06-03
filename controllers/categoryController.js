@@ -17,7 +17,7 @@ exports.catDetail = async (req, res, next) => {
         const allCategories = await Category.find().exec();
         const category = await Category.findById(req.params.id);
         const items = await Item.find({ category: req.params.id }).exec();
-        res.render("category_details", { title: category.name, items: items, categories: allCategories });
+        res.render("category_details", { title: category.name, items: items, thisCategory: category, categories: allCategories });
     } catch (err) {
         return next(err);
     }
@@ -59,12 +59,30 @@ exports.catAddPost = [
     }
 ];
 
-exports.catDeleteGet = (req, res, next) => {
-    res.send("NOT IMPLEMENTED: Delete category GET");
+exports.catDeleteGet = async (req, res, next) => {
+    try {
+        const category = await Category.findById(req.params.id);
+        const items = await Item.find({ category: req.params.id });
+        res.render("category_delete", { title: `Delete Category: ${category.name}`, items: items, category: category });
+    } catch (err) {
+        return next(err);
+    }
 };
 
-exports.catDeletePost = (req, res, next) => {
-    res.send("NOT IMPLEMENTED: Delete category POST");
+exports.catDeletePost = async (req, res, next) => {
+    try {
+        const category = await Category.findById(req.body.categoryId);
+        const items = await Item.find({ category: req.body.categoryId });
+        if (items.length > 0) {
+            res.render("category_delete", { title: `Delete Category: ${category.name}`, items: items, category: category });
+            return void 0;
+        } else {
+            await Category.findByIdAndRemove(req.body.categoryId);
+            res.redirect("/categories");
+        }
+    } catch (err) {
+        return next(err);
+    }
 };
 
 exports.catUpdateGet = (req, res, next) => {
