@@ -6,6 +6,10 @@ block content
   p.my-2
     span.bg-blue-400.rounded.w-auto.p-1 #{item.category.name}
 
+  if item.image
+    .my-5.flex.justify-center
+      img.max-w-screen-md(src=item.imageUrl, alt="")
+
   p.my-2 #{item.description}
 
   .flex.justify-around
