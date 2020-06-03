@@ -60,9 +60,10 @@ exports.catAddPost = [
 
 exports.catDeleteGet = async (req, res, next) => {
     try {
+        const categories = await Category.find().exec();
         const category = await Category.findById(req.params.id);
         const items = await Item.find({ category: req.params.id });
-        res.render("category_delete", { title: `Delete Category: ${category.name}`, items: items, category: category });
+        res.render("category_delete", { title: `Delete Category: ${category.name}`, items: items, category: category, categories: categories });
     } catch (err) {
         return next(err);
     }
@@ -70,10 +71,11 @@ exports.catDeleteGet = async (req, res, next) => {
 
 exports.catDeletePost = async (req, res, next) => {
     try {
+        const categories = await Category.find().exec();
         const category = await Category.findById(req.body.categoryId);
         const items = await Item.find({ category: req.body.categoryId });
         if (items.length > 0) {
-            res.render("category_delete", { title: `Delete Category: ${category.name}`, items: items, category: category });
+            res.render("category_delete", { title: `Delete Category: ${category.name}`, items: items, category: category, categories: categories });
         } else {
             await Category.findByIdAndRemove(req.body.categoryId);
             res.redirect("/categories");
@@ -87,7 +89,6 @@ exports.catUpdateGet = async (req, res, next) => {
     try {
         const allCategories = await Category.find().exec();
         const category = await Category.findById(req.params.id);
-        console.log(category);
         res.render("category_form", { title: "Add Category", categories: allCategories, category: category });
     } catch (err) {
         return next(err);
