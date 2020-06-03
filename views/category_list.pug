@@ -5,15 +5,16 @@ block content
 
   if categories
     for category, index in categories
-      p.font-bold
-        a(href=(category.url)) #{category.name}
-      ul.list-disc.list-inside
-        if items[index]
-          for item in items[index]
-            li
-              a(href=item.url) #{item.name}
-          else
-            li No items in this category.
+      .mt-3.px-2.border-l-2
+        p.font-bold
+          a(href=(category.url)) #{category.name}
+        ul.list-disc.list-inside
+          if items[index]
+            for item in items[index]
+              li
+                a(href=item.url) #{item.name}
+            else
+              li No items in this category.
 
 block sidebar-extension
   if categories
