@@ -50,22 +50,17 @@ exports.itemAddPost = [
             res.render("item_form", { title: "Add Item", item: item, errors: errors.array() });
             return void 0;
         } else {
-            await Item.findOne({ name: req.body.name, manufacturer: req.body.manufacturer })
-                .exec((err, result) => {
-                    if (err) {
-                        return next(err);
-                    }
-                    if (result) {
-                        res.redirect(result.url);
-                    } else {
-                        item.save(err => {
-                            if (err) {
-                                return next(err);
-                            }
-                            res.redirect(item.url);
-                        })
-                    }
-                });
+            try {
+                const result = await Item.findOne({ name: req.body.name, manufacturer: req.body.manufacturer }).exec();
+                if (result) {
+                    res.redirect(result.url);
+                } else {
+                    const newItem = await item.save();
+                    res.redirect(newItem.url);
+                }
+            } catch (err) {
+                return next(err);
+            }
         }
     }
 ];
