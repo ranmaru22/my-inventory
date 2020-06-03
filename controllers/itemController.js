@@ -95,6 +95,34 @@ exports.itemUpdateGet = async (req, res, next) => {
     }
 };
 
-exports.itemUpdatePost = (req, res, next) => {
-    res.send("NOT IMPLEMENTED: Update Item POST");
-};
+exports.itemUpdatePost = [
+    validator.check("name", "Item must have a name.").trim().isLength({ min: 1 }),
+    validator.check("description", "Item must have a description.").trim().isLength({ min: 1 }),
+    validator.check("manufacturer", "Item must have a manufacturer.").trim().isLength({ min: 1 }),
+    validator.check("price", "Price must be a decimal number.").trim().isDecimal(),
+    validator.check("stock", "Stock must be an integer.").trim().isInt(),
+    validator.body("*").escape(),
+
+    async (req, res, next) => {
+        const errors = validator.validationResult(req);
+        const item = new Item({
+            category: req.body.category,
+            name: req.body.name,
+            description: req.body.description,
+            manufacturer: req.body.manufacturer,
+            price: req.body.price,
+            stock: req.body.stock,
+            _id: req.params.id
+        });
+        if (!errors.isEmpty) {
+            res.render("item_form", { title: "Add Item", item: item, errors: errors.array() });
+        } else {
+            try {
+                const result = await Item.findByIdAndUpdate(req.params.id, item);
+                res.redirect(result.url);
+            } catch (err) {
+                return next(err);
+            }
+        }
+    }
+];
