@@ -4,15 +4,15 @@ block content
   h1= title
 
   p.my-2
-    span.bg-blue-400.rounded.w-auto.p-1 #{item.category.name}
+    a.bg-blue-400.text-white.rounded.w-auto.p-1(href=item.category.url) #{item.category.name}
 
   if item.image
-    .my-5.flex.justify-center
-      img.max-w-screen-md(src=item.imageUrl, alt="")
+    .my-5.flex.justify-start
+      img.max-w-screen-sm(src=item.imageUrl, alt="")
 
-  p.my-2 #{item.description}
+  p.my-2 !{item.description}
 
-  .flex.justify-around
+  .grid.grid-cols-2.gap-4
     p In stock: #{item.stock}
     p Price: $#{item.price}
 
