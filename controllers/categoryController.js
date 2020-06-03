@@ -1,12 +1,20 @@
 const Category = require("../models/category");
+const Item = require("../models/item");
 const validator = require("express-validator");
 
 exports.catList = (req, res, next) => {
     res.send("NOT IMPLEMENTED: Category list");
 };
 
-exports.catDetail = (req, res, next) => {
-    res.send("NOT IMPLEMENTED: Category detail page");
+exports.catDetail = async (req, res, next) => {
+    try {
+        const allCategories = await Category.find().exec();
+        const category = await Category.findById(req.params.id);
+        const items = await Item.find({ category: req.params.id }).exec();
+        res.render("category_details", { title: category.name, items: items, categories: allCategories });
+    } catch (err) {
+        return next(err);
+    }
 };
 
 exports.catAddGet = async (req, res, next) => {
@@ -19,10 +27,9 @@ exports.catAddGet = async (req, res, next) => {
 };
 
 exports.catAddPost = [
-    validator.check("name").trim().isLength({ min: 1 }),
-    validator.check("description").trim().isLength({ min: 1 }),
-    validator.body("name").escape(),
-    validator.body("description").escape(),
+    validator.body("name").trim().isLength({ min: 1 }),
+    validator.body("description").trim().isLength({ min: 1 }),
+    validator.body("*").escape(),
 
     async (req, res, next) => {
         const errors = validator.validationResult(req);
@@ -31,22 +38,17 @@ exports.catAddPost = [
             res.render("category_form", { title: "Add Category", category: category, errors: errors.array() });
             return void 0;
         } else {
-            await Category.findOne({ name: req.body.name })
-                .exec((err, result) => {
-                    if (err) {
-                        return next(err);
-                    }
-                    if (result) {
-                        res.redirect(result.url);
-                    } else {
-                        category.save(err => {
-                            if (err) {
-                                return next(err);
-                            }
-                            res.redirect(category.url);
-                        })
-                    }
-                });
+            try {
+                const result = await Category.findOne({ name: req.body.name }).exec();
+                if (result) {
+                    res.redirect(result.url);
+                } else {
+                    const newCategory = await category.save();
+                    res.redirect(newCategory.url);
+                }
+            } catch (err) {
+                return next(err);
+            }
         }
     }
 ];
