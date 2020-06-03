@@ -6,8 +6,16 @@ exports.itemList = (req, res, next) => {
     res.send("NOT IMPLEMENTED: Item list");
 };
 
-exports.itemDetail = (req, res, next) => {
-    res.send("NOT IMPLEMENTED: Item detail page");
+exports.itemDetail = async (req, res, next) => {
+    try {
+        const categories = await Category.find().exec();
+        const item = await Item.findById(req.params.id)
+            .populate("category")
+            .exec();
+        res.render("item_details", { title: item.name, item: item, categories: categories });
+    } catch (err) {
+        return next(err);
+    }
 };
 
 exports.itemAddGet = async (req, res, next) => {
