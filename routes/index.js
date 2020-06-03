@@ -9,8 +9,12 @@ const Item = require("../models/item");
 
 /* GET home page. */
 router.get("/", async (req, res, next) => {
-  const categories = await Category.find().exec();
-  res.render("index", { title: "Ranmaru's Keyboard Store", categories: categories });
+  try {
+    const categories = await Category.find().exec();
+    res.render("index", { title: "Ranmaru's Keyboard Store", categories: categories });
+  } catch (err) {
+    return next(err);
+  }
 });
 
 router.get("/categories/add", categoryController.catAddGet);
