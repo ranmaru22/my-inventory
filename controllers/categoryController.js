@@ -97,13 +97,14 @@ exports.catUpdateGet = async (req, res, next) => {
     try {
         const allCategories = await Category.find().exec();
         const category = await Category.findById(req.params.id);
-        res.render("category_form", { title: "Add Category", categories: allCategories, category: category });
+        res.render("category_form", { title: "Add Category", categories: allCategories, category: category, edit: true });
     } catch (err) {
         return next(err);
     }
 };
 
 exports.catUpdatePost = [
+    validator.body("password", "Wrong password!").notEmpty().custom(value => value === SUPER_SECRET_PASSWORD),
     validator.body("name", "Name is required").trim().isLength({ min: 1 }).escape(),
     validator.body("description", "Description is required").trim().isLength({ min: 1 }).escape(),
 
@@ -111,7 +112,7 @@ exports.catUpdatePost = [
         const errors = validator.validationResult(req);
         const category = new Category({ name: req.body.name, description: req.body.description, _id: req.params.id });
         if (!errors.isEmpty()) {
-            res.render("category_form", { title: "Add Category", category: category, errors: errors.array() });
+            res.render("category_form", { title: "Add Category", category: category, errors: errors.array(), edit: true });
         } else {
             try {
                 const result = await Category.findByIdAndUpdate(req.params.id, category).exec();
