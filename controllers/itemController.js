@@ -5,8 +5,9 @@ const multer = require("multer");
 const fs = require("fs");
 
 const filePath = "public/uploads/";
-const upload = multer({ dest: filePath }).single("image");
+const upload = multer({ dest: filePath });
 
+const SUPER_SECRET_PASSWORD = process.env.SECRET_PASSWORD || "foobar";
 
 exports.itemList = (req, res, next) => {
     res.redirect("/categories");
@@ -34,17 +35,16 @@ exports.itemAddGet = async (req, res, next) => {
 };
 
 exports.itemAddPost = [
-    validator.check("name", "Item must have a name.").trim().isLength({ min: 1 }),
-    validator.check("description", "Item must have a description.").trim().isLength({ min: 1 }),
-    validator.check("manufacturer", "Item must have a manufacturer.").trim().isLength({ min: 1 }),
-    validator.check("price", "Price must be a decimal number.").trim().isDecimal(),
-    validator.check("stock", "Stock must be an integer.").trim().isInt(),
-    validator.body("*").escape(),
-
-    upload,
+    upload.single("image"),
+    validator.body("name", "Item must have a name.").trim().isLength({ min: 1 }).escape(),
+    validator.body("description", "Item must have a description.").trim().isLength({ min: 1 }).escape(),
+    validator.body("manufacturer", "Item must have a manufacturer.").trim().isLength({ min: 1 }).escape(),
+    validator.body("price", "Price must be a decimal number.").trim().isDecimal().escape(),
+    validator.body("stock", "Stock must be an integer.").trim().isInt().escape(),
 
     async (req, res, next) => {
         const errors = validator.validationResult(req);
+        console.log(errors);
         const categories = await Category.find().exec();
         const item = new Item({
             category: req.body.category,
@@ -55,8 +55,8 @@ exports.itemAddPost = [
             stock: req.body.stock,
             image: req.file?.filename
         });
-        if (!errors.isEmpty) {
-            res.render("item_form", { title: "Add Item", item: item, errors: errors.array() });
+        if (!errors.isEmpty()) {
+            res.render("item_form", { title: "Add Item", item: item, categories: categories, errors: errors.array() });
         } else {
             try {
                 const result = await Item.findOne({ name: req.body.name, manufacturer: req.body.manufacturer }).exec();
@@ -83,22 +83,32 @@ exports.itemDeleteGet = async (req, res, next) => {
     }
 };
 
-exports.itemDeletePost = async (req, res, next) => {
-    try {
-        const item = await Item.findById(req.body.itemId);
-        if (item.image) {
-            fs.unlink(filePath + item.image, err => {
-                if (err) {
-                    return next(err);
+exports.itemDeletePost = [
+    validator.body("password", "Wrong password!").notEmpty().custom(value => value === SUPER_SECRET_PASSWORD),
+
+    async (req, res, next) => {
+        try {
+            if (!validator.validationResult(req).isEmpty()) {
+                const categories = await Category.find().exec();
+                const item = await Item.findById(req.params.id);
+                res.render("item_delete", { title: `Delete Item: ${item.name}`, item: item, categories: categories, error: true });
+            } else {
+                const item = await Item.findById(req.body.itemId);
+                if (item.image) {
+                    fs.unlink(filePath + item.image, err => {
+                        if (err) {
+                            return next(err);
+                        }
+                    });
                 }
-            });
+                await item.remove();
+                res.redirect("/");
+            }
+        } catch (err) {
+            return next(err);
         }
-        await item.remove();
-        res.redirect("/");
-    } catch (err) {
-        return next(err);
     }
-};
+];
 
 exports.itemUpdateGet = async (req, res, next) => {
     try {
@@ -106,24 +116,25 @@ exports.itemUpdateGet = async (req, res, next) => {
         const item = await Item.findById(req.params.id)
             .populate("category")
             .exec();
-        res.render("item_form", { title: `Edit Item: ${item.name}`, categories: categories, item: item });
+        res.render("item_form", { title: `Edit Item: ${item.name}`, categories: categories, item: item, edit: true });
     } catch (err) {
         return next(err);
     }
 };
 
 exports.itemUpdatePost = [
-    validator.check("name", "Item must have a name.").trim().isLength({ min: 1 }),
-    validator.check("description", "Item must have a description.").trim().isLength({ min: 1 }),
-    validator.check("manufacturer", "Item must have a manufacturer.").trim().isLength({ min: 1 }),
-    validator.check("price", "Price must be a decimal number.").trim().isDecimal(),
-    validator.check("stock", "Stock must be an integer.").trim().isInt(),
+    upload.single("image"),
+    validator.body("password", "Wrong password!").notEmpty().custom(value => value === SUPER_SECRET_PASSWORD),
+    validator.body("name", "Item must have a name.").trim().isLength({ min: 1 }),
+    validator.body("description", "Item must have a description.").trim().isLength({ min: 1 }),
+    validator.body("manufacturer", "Item must have a manufacturer.").trim().isLength({ min: 1 }),
+    validator.body("price", "Price must be a decimal number.").trim().isDecimal(),
+    validator.body("stock", "Stock must be an integer.").trim().isInt(),
     validator.body("*").escape(),
-
-    upload,
 
     async (req, res, next) => {
         const errors = validator.validationResult(req);
+        const categories = await Category.find().exec();
         const currentItem = await Item.findById(req.params.id);
         if (req.file && req.file.filename !== currentItem.image) {
             fs.unlink(filePath + currentItem.image, err => {
@@ -142,8 +153,15 @@ exports.itemUpdatePost = [
             _id: req.params.id,
             image: req.file?.filename || currentItem.image
         });
-        if (!errors.isEmpty) {
-            res.render("item_form", { title: "Add Item", item: item, errors: errors.array() });
+        if (!errors.isEmpty()) {
+            if (req.file) {
+                fs.unlink(filePath + req.file.filename, err => {
+                    if (err) {
+                        return next(err);
+                    }
+                });
+            }
+            res.render("item_form", { title: `Edit Item: ${item.name}`, item: item, categories: categories, edit: true, errors: errors.array() });
         } else {
             try {
                 const result = await Item.findByIdAndUpdate(req.params.id, item);

@@ -2,6 +2,8 @@ const Category = require("../models/category");
 const Item = require("../models/item");
 const validator = require("express-validator");
 
+const SUPER_SECRET_PASSWORD = process.env.SECRET_PASSWORD || "foobar";
+
 exports.catList = async (req, res, next) => {
     try {
         const categories = await Category.find().exec();
@@ -33,15 +35,15 @@ exports.catAddGet = async (req, res, next) => {
 };
 
 exports.catAddPost = [
-    validator.body("name").trim().isLength({ min: 1 }),
-    validator.body("description").trim().isLength({ min: 1 }),
-    validator.body("*").escape(),
+    validator.body("name", "Name is required").trim().isLength({ min: 1 }).escape(),
+    validator.body("description", "Description is required").trim().isLength({ min: 1 }).escape(),
 
     async (req, res, next) => {
         const errors = validator.validationResult(req);
+        const categories = await Category.find().exec();
         const category = new Category({ name: req.body.name, description: req.body.description });
-        if (!errors.isEmpty) {
-            res.render("category_form", { title: "Add Category", category: category, errors: errors.array() });
+        if (!errors.isEmpty()) {
+            res.render("category_form", { title: "Add Category", category: category, categories: categories, errors: errors.array() });
         } else {
             try {
                 const result = await Category.findOne({ name: req.body.name }).exec();
@@ -69,21 +71,27 @@ exports.catDeleteGet = async (req, res, next) => {
     }
 };
 
-exports.catDeletePost = async (req, res, next) => {
-    try {
-        const categories = await Category.find().exec();
-        const category = await Category.findById(req.body.categoryId);
-        const items = await Item.find({ category: req.body.categoryId });
-        if (items.length > 0) {
-            res.render("category_delete", { title: `Delete Category: ${category.name}`, items: items, category: category, categories: categories });
-        } else {
-            await Category.findByIdAndRemove(req.body.categoryId);
-            res.redirect("/categories");
+exports.catDeletePost = [
+    validator.body("password", "Wrong password!").notEmpty().custom(value => value === SUPER_SECRET_PASSWORD),
+
+    async (req, res, next) => {
+        try {
+            const categories = await Category.find().exec();
+            const category = await Category.findById(req.body.categoryId);
+            const items = await Item.find({ category: req.body.categoryId });
+            if (items.length > 0) {
+                res.render("category_delete", { title: `Delete Category: ${category.name}`, items: items, category: category, categories: categories });
+            } else if (!validator.validationResult(req).isEmpty()) {
+                res.render("category_delete", { title: `Delete Category: ${category.name}`, items: items, error: true, category: category, categories: categories });
+            } else {
+                await Category.findByIdAndRemove(req.body.categoryId);
+                res.redirect("/categories");
+            }
+        } catch (err) {
+            return next(err);
         }
-    } catch (err) {
-        return next(err);
     }
-};
+];
 
 exports.catUpdateGet = async (req, res, next) => {
     try {
@@ -96,14 +104,13 @@ exports.catUpdateGet = async (req, res, next) => {
 };
 
 exports.catUpdatePost = [
-    validator.body("name").trim().isLength({ min: 1 }),
-    validator.body("description").trim().isLength({ min: 1 }),
-    validator.body("*").escape(),
+    validator.body("name", "Name is required").trim().isLength({ min: 1 }).escape(),
+    validator.body("description", "Description is required").trim().isLength({ min: 1 }).escape(),
 
     async (req, res, next) => {
         const errors = validator.validationResult(req);
         const category = new Category({ name: req.body.name, description: req.body.description, _id: req.params.id });
-        if (!errors.isEmpty) {
+        if (!errors.isEmpty()) {
             res.render("category_form", { title: "Add Category", category: category, errors: errors.array() });
         } else {
             try {
