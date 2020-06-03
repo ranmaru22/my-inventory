@@ -1,0 +1,24 @@
+extends layout
+
+block content
+  h1= title
+
+  if items.length
+    p.my-2 The category you're trying to delete has items in it. Please move the following items to a different category first and then try again.
+    ul.list-disc.list-inside
+      for item in items
+        li
+          a(href=item.url) #{item.name}
+  else
+    p.my-2 Do you really want to delete this category?
+    form(action="", method="post")
+      .form-group
+        input(type="hidden", name="categoryId", required, value=category._id)
+        button.bg-red-500.text-white.font-bold.py-2.px-4.rounded(type="submit", class="hover:bg-blue-700") Delete
+
+
+block sidebar-extension
+  if categories
+    for category in categories
+      li
+        a(href=(category.url)) #{category.name}
