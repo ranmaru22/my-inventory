@@ -42,7 +42,6 @@ exports.catAddPost = [
         const category = new Category({ name: req.body.name, description: req.body.description });
         if (!errors.isEmpty) {
             res.render("category_form", { title: "Add Category", category: category, errors: errors.array() });
-            return void 0;
         } else {
             try {
                 const result = await Category.findOne({ name: req.body.name }).exec();
