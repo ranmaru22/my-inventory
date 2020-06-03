@@ -83,10 +83,34 @@ exports.catDeletePost = async (req, res, next) => {
     }
 };
 
-exports.catUpdateGet = (req, res, next) => {
-    res.send("NOT IMPLEMENTED: Update category GET");
+exports.catUpdateGet = async (req, res, next) => {
+    try {
+        const allCategories = await Category.find().exec();
+        const category = await Category.findById(req.params.id);
+        console.log(category);
+        res.render("category_form", { title: "Add Category", categories: allCategories, category: category });
+    } catch (err) {
+        return next(err);
+    }
 };
 
-exports.catUpdatePost = (req, res, next) => {
-    res.send("NOT IMPLEMENTED: Update category POST");
-};
+exports.catUpdatePost = [
+    validator.body("name").trim().isLength({ min: 1 }),
+    validator.body("description").trim().isLength({ min: 1 }),
+    validator.body("*").escape(),
+
+    async (req, res, next) => {
+        const errors = validator.validationResult(req);
+        const category = new Category({ name: req.body.name, description: req.body.description, _id: req.params.id });
+        if (!errors.isEmpty) {
+            res.render("category_form", { title: "Add Category", category: category, errors: errors.array() });
+        } else {
+            try {
+                const result = await Category.findByIdAndUpdate(req.params.id, category).exec();
+                res.redirect(result.url);
+            } catch (err) {
+                return next(err);
+            }
+        }
+    }
+];
