@@ -14,10 +14,7 @@ html
             hr.border-blue-400.my-1
             li 
               a(href='/categories/') All categories
-            unless error
-              for category, index in categories
-                li
-                  a(href=(category.url)) #{category.name}
+            block sidebar-extension
             hr.border-blue-400.my-1
             li 
               a(href='/categories/add') Add new category
