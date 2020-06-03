@@ -48,7 +48,6 @@ exports.itemAddPost = [
         });
         if (!errors.isEmpty) {
             res.render("item_form", { title: "Add Item", item: item, errors: errors.array() });
-            return void 0;
         } else {
             try {
                 const result = await Item.findOne({ name: req.body.name, manufacturer: req.body.manufacturer }).exec();
