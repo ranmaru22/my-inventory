@@ -2,8 +2,14 @@ const Category = require("../models/category");
 const Item = require("../models/item");
 const validator = require("express-validator");
 
-exports.catList = (req, res, next) => {
-    res.send("NOT IMPLEMENTED: Category list");
+exports.catList = async (req, res, next) => {
+    try {
+        const categories = await Category.find().exec();
+        const items = await Promise.all(categories.map(category => Item.find({ category: category }).exec()));
+        res.render("category_list", { title: "Categories", items: items, categories: categories });
+    } catch (err) {
+        return next(err);
+    }
 };
 
 exports.catDetail = async (req, res, next) => {
