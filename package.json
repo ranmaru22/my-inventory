@@ -22,10 +22,10 @@
     "node-sass-middleware": "0.11.0",
     "postcss": "^7.0.32",
     "postcss-cli": "^7.1.1",
-    "pug": "2.0.0-beta11"
+    "pug": "2.0.0-beta11",
+    "tailwindcss": "^1.4.6"
   },
   "devDependencies": {
     "nodemon": "^2.0.4",
-    "tailwindcss": "^1.4.6"
   }
 }
