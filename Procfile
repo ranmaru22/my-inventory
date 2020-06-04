@@ -1,0 +1,1 @@
+web: npm run build:css && npm run start
