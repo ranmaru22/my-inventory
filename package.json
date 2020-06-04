@@ -1,6 +1,9 @@
 {
   "name": "my-inventory",
   "version": "1.0.0",
+  "engines": {
+    "node": "14.3.0 "
+  },
   "private": true,
   "scripts": {
     "start": "npm run build:css && node ./bin/www",
